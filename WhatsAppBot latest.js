@@ -584,4 +584,4 @@ function Main( bSendSetupMessage ){
   
 }
 
-Main( false );
+Main( true );
