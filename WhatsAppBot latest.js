@@ -18,7 +18,7 @@ class FunctionObject {
   // owner commands
   ChangePrefix	( sNewPrefix ){ 	ChangePrefix( sNewPrefix ); 			}
   ChangeName	( sName ){		ChangeName( sName );				}  
-  Admin		( sRA_and_sName ){	Admin( sRA_and_sName );				}  //Under construction
+  Admin		( RA_and_sName ){	Admin( RA_and_sName );				}  //Finished, not tested yet
 }
 
 
@@ -42,8 +42,7 @@ const aFunctions =
   [ "[p]stop" , "" , "Empties the spam queue" , [ "[p]s" ] ],
   [ "[p]prefix" , "[new prefix]" , "Change the prefix", [ "[p]pre" , "[p]p" ] ],
   [ "[p]name" , "[new name]" , "Change the owner name" , [ "" ] ],
-  [ "[p]adminadd" , "[name]" , "Add an admin" , [ "" ] ],
-  [ "[p]admindel" , "[name]" , "Remove an admin" , [ "" ] ]
+  [ "[p]admin" , "[add/remove] [name]" , "Add an admin" , [ "" ] ]
 ];
 
 const aCallFuncs = 
@@ -56,8 +55,7 @@ const aCallFuncs =
   [ "stop" , "s" , "StopSpamming" ],
   [ "prefix" , "pre" , "p" , "ChangePrefix" ],
   [ "name" , "ChangeName" ],
-  [ "adminadd" , "AddAdmin" ],
-  [ "admindel" , "RemoveAdmin" ]
+  [ "admin" , "Admin" ],
 ];
 
 
@@ -577,11 +575,11 @@ function Main( bSendSetupMessage ){
   GetMembers( );
   
   if( bSendSetupMessage )
-    Send( `_The bot *"${sBotName}"* is set up and bound to the chat: *"${sChatName}"*.\nUse !help to see the commands you can use.\nDownload me at https://github.com/Roel04/Roel/blob/master/WhatsAppBot.js.\nCreated by Roel_` );
+    Send( `_The bot *"${sBotName}"* is set up and bound to the chat: *"${sChatName}"*.\nUse !help to see the commands you can use.\nDownload me at https://github.com/Roel-04/WhatsAppBot/blob/master/WhatsAppBot%20latest.js by Roel_` );
   
   else
-	console.log(`The bot "${sBotName}" is set up and bound to the chat: "${sChatName}".\nUse !help to see the commands you can use.\nDownload me at https://github.com/Roel04/Roel/blob/master/WhatsAppBot.js.\nCreated by Roel`);
+	console.log(`The bot "${sBotName}" is set up and bound to the chat: "${sChatName}".\nUse !help to see the commands you can use.\nDownload me at https://github.com/Roel-04/WhatsAppBot/blob/master/WhatsAppBot%20latest.js by Roel`);
   
 }
 
-Main( true );
+Main( false );
