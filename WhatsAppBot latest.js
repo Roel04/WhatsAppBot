@@ -18,7 +18,7 @@ class FunctionObject {
   // owner commands
   ChangePrefix	( sNewPrefix ){ 	ChangePrefix( sNewPrefix ); 			}
   ChangeName	( sName ){		ChangeName( sName );				}  
-  Admin		( RA_and_sName ){	Admin( RA_and_sName );				} //under construction
+  Admin		( sRA_and_sName ){	Admin( sRA_and_sName );				}  //finished, not tested yet
 }
 
 
