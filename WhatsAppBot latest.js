@@ -7,18 +7,18 @@ class FunctionObject {
   ShowHelpMenu	( NO_ARGUMENTS ){ 	ShowHelpMenu( ); 				}
   ShowShortcuts	( NO_ARGUMENTS ){ 	ShowShortcuts( ); 				}
   SpamMessage	( sMsg_and_iIt ){	SpamMessage( sMsg_and_iIt );	}
-  WaveMessage	( sMessage ){		WaveMessage( sMessage );		}
-  CharMessage	( sMessage ){		CharMessage( sMessage );		}
+  WaveMessage	( sMessage ){		WaveMessage( sMessage );			}
+  CharMessage	( sMessage ){		CharMessage( sMessage );			}
 
   // admin+ commands
   StopSpamming  ( NO_AGRUMENTS ){	StopSpamming( );				} 
-  ChangeBotName	( sNewName ){		ChangeBotName( sNewName);		}  //not finished
+  ChangeBotName	( sNewName ){		ChangeBotName( sNewName);			}  //not finished
   ShowGroupList ( NO_ARGUMENTS ){	ShowGroupList( );				}  //not finished
 
   // owner commands
-  ChangePrefix	( sNewPrefix ){ 	ChangePrefix( sNewPrefix ); 	}
-  ChangeName	( sName ){			ChangeName( sName );			}  
-  Admin			( RA_and_sName ){	Admin( RA_and_sName );			} //under construction
+  ChangePrefix	( sNewPrefix ){ 	ChangePrefix( sNewPrefix ); 			}
+  ChangeName	( sName ){		ChangeName( sName );				}  
+  Admin		( RA_and_sName ){	Admin( RA_and_sName );				} //under construction
 }
 
 
