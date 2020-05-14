@@ -6,19 +6,19 @@ class FunctionObject {
   // normal commands 
   ShowHelpMenu	( NO_ARGUMENTS ){ 	ShowHelpMenu( ); 				}
   ShowShortcuts	( NO_ARGUMENTS ){ 	ShowShortcuts( ); 				}
-  SpamMessage	( sMsg_and_iIt ){	SpamMessage( sMsg_and_iIt );	}
+  SpamMessage	( sMsg_and_iIt ){	SpamMessage( sMsg_and_iIt );			}
   WaveMessage	( sMessage ){		WaveMessage( sMessage );			}
   CharMessage	( sMessage ){		CharMessage( sMessage );			}
 
   // admin+ commands
   StopSpamming  ( NO_AGRUMENTS ){	StopSpamming( );				} 
-  ChangeBotName	( sNewName ){		ChangeBotName( sNewName);			}  //not finished
-  ShowGroupList ( NO_ARGUMENTS ){	ShowGroupList( );				}  //not finished
+  ChangeBotName	( sName ){		ChangeBotName( sName);				} 
+  ShowGroupList ( NO_ARGUMENTS ){	ShowGroupList( );				}  
 
   // owner commands
   ChangePrefix	( sNewPrefix ){ 	ChangePrefix( sNewPrefix ); 			}
   ChangeName	( sName ){		ChangeName( sName );				}  
-  Admin		( RA_and_sName ){	Admin( RA_and_sName );				}  //Finished, not tested yet
+  Admin		( RA_and_sName ){	Admin( RA_and_sName );				}  //Finished, not tested in a groupchat yet
 }
 
 
@@ -40,6 +40,8 @@ const aFunctions =
   [ "[p]wave" , "[message {max length = "+iChar_limit+"}]" , "Send a message like a wave" , [ "[p]w" ] ],
   [ "[p]char" , "[message {max length = "+iChar_limit+"}]" , "Send a message for every char" , [ "[p]ch" ] ],
   [ "[p]stop" , "" , "Empties the spam queue" , [ "[p]s" ] ],
+  [ "[p]botname" , "[new name]" , "Changes the name of the bot" , [ "[p]bn" ] ],
+  [ "[p]grouplist" , "" , "Shows everyone's roles" , [ "[p]glist" , "[p]gl" ] ],
   [ "[p]prefix" , "[new prefix]" , "Change the prefix", [ "[p]pre" , "[p]p" ] ],
   [ "[p]name" , "[new name]" , "Change the owner name" , [ "" ] ],
   [ "[p]admin" , "[add/remove] [name]" , "Add an admin" , [ "" ] ]
@@ -53,6 +55,8 @@ const aCallFuncs =
   [ "wave" , "w" , "WaveMessage" ],
   [ "char" , "ch" , "CharMessage" ],
   [ "stop" , "s" , "StopSpamming" ],
+  [ "botname" , "bn" , "ChangeBotName" ],
+  [ "grouplist" , "glist" , "gl" , "ShowGroupList" ],
   [ "prefix" , "pre" , "p" , "ChangePrefix" ],
   [ "name" , "ChangeName" ],
   [ "admin" , "Admin" ],
@@ -187,17 +191,80 @@ function CharMessage( sMessage ){
 
 function StopSpamming( ){
   
-  let aStatus = CheckSender()
+  let aStatus = CheckSender();
   
   if( aStatus[0] || aStatus[1] ){
 	  
     aMessageQueue = [];
   
-    Send( `_${sOwnerName} has cleared the spamlist successfully_` );
+    if( aStatus[0] )
+	  Send( `_*${sOwnerName()}* has cleared the spamlist successfully_` );
+  
+    else 
+      Send( `_*${GetSendName()}* has cleared the spamlist successfully_` );
 	
   } else {
 	
 	Send(`_Only *${sOwnerName}* or an admin can clear the spam queue_`);
+  }
+}
+
+
+
+/////////////////////////   Change the Bot's name   ///////////////////////
+
+function ChangeBotName( sName ){
+  
+  let aStatus = CheckSender();
+  
+  if( aStatus[0] || aStatus[1] ){
+	
+	Send(`_The Bot's name has been changed from *${sBotName}* to *${sName}*_`);
+	
+	sBotName = sName;
+	
+  } else {
+	
+	Send(`_Only *${sOwnerName}* or an admin can change the bot's name_`);
+  
+  }
+}
+
+
+
+/////////////////////////   Show all people and their roles   /////////////////////
+
+function ShowGroupList( ){
+  
+  let sList = "";
+  
+  let aStatus = CheckSender();
+  
+  if( aStatus[0] || aStatus[1] ){
+	
+	sList += `_*Members:*_\n`;
+	
+	if( aMemberList.length === 0 )
+	  sList += `_*There are no members*_\n`;
+	
+	for( let member of aMemberList )
+	  sList += `_${member}_\n`;
+    
+	
+	sList += `\n\n_*Admins:*_\n`;
+	
+	if( aAdminList.length === 0 )
+	  sList += `_*There are no admins*_`;
+	
+	for( let admin of aAdminList )
+	  sList += `_${admin}_\n`;
+
+    Send( sList );
+
+  } else {
+	  
+	Send(`_Only *${sOwnerName}* or an admin can request the group list_`);
+
   }
 }
 
@@ -225,11 +292,12 @@ function ChangeName( sName ){
 /////////////////////////   Add or Remove an admin   //////////////////////
 
 function Admin( RemAdd_and_sName ){
+  let RemAdd = "", sName = "";
   
   //split RemAdd_and_sName up in RemAdd + sName
   let sSpaces = RemAdd_and_sName.split( ' ' );
   let iSpaces = RemAdd_and_sName.indexOf( sSpaces[ sSpaces.length - 1 ] );
-  let RemAdd = RemAdd_and_sName.slice( 0 , iSpaces - 1 );
+  RemAdd = RemAdd_and_sName.slice( 0 , iSpaces - 1 );
   
   // if they only entered a name, remadd will be the name, and if so
   // sName = remadd and remadd will be "add"
@@ -246,7 +314,7 @@ function Admin( RemAdd_and_sName ){
 	
   }
   
-  let sName = RemAdd_and_sName.slice( iSpaces );
+  sName = RemAdd_and_sName.slice( iSpaces );
   
   if( sName === "" ){
 	
@@ -255,53 +323,100 @@ function Admin( RemAdd_and_sName ){
     return 0;
 	
   }
-  
+  Send(`_add or remove: *${RemAdd}*_\n_name: *${sName}*_`);
   //check if the executer of the command is the owner
   if( CheckSender()[0] ){
 	  
     //check if it should either remove or add an admin
 	if( RemAdd === "a" || RemAdd === "add" ){
-	
+		
       //make the string to lower case to prevent some possible mistakes
       sName = sName.toLowerCase();
+	  
+	  // you can enter #everyone to make everyone admin at once 
+	  if( sName === "#everyone" ){
+		  
+		for( let member of aMemberList ){
+		  aAdminList.push( member );
+		}
+		
+		aMemberList = [];
+		
+		Send(`_*Everyone is now admin*_`);
+		return 0;
+		
+	  }
   
       //check if they are already an admin
-      for( let admin of aAdminList )
-	    if( sName === admin.toLowerCase() )
+      for( let admin of aAdminList ){
+	    if( sName === admin.toLowerCase() ){
 	      Send(`_*${sName}* is already an admin_`);
-  
-      for( let member of aMemberList ){
+		  return 0;
+		}
+	  }
 	  
+	  if( aMemberList.length === 0 ){
+		Send(`_There are no members in your group_`);
+	    return 0;
+	  }
+	  
+      for( let member of aMemberList ){
 	    //check if a member matches the given name
 	    if( sName === member.toLowerCase() ){
 	  
-	      aAdminList.push( member );
+	      aMemberList = aMemberList.filter( function( mem ){ return mem != member } );
+		  
+		  aAdminList.push( member );
+		  		  
 		  Send(`_*${member}* is now an admin_`);
-		
+		  return 0;
 		  //if the member is in neither the admin list nor the member list
         } else if( member === aMemberList[ aMemberList.length - 1 ] ) {
 		
 		  Send(`_*${sName}* is either not spelled correct or does not exist_`);
+		  return 0;
 	  
 	    }
 	  }
     } else if( RemAdd === "r" || RemAdd === "rem" || RemAdd === "remove" ){
+	  
+	  if( aAdminList.length === 0 ){
+		Send(`_There are no admins to remove_`);
+	    return 0;
+	  }
+	  
+	  // you can enter #everyone to remove all admins at once 
+	  if( sName === "#everyone" ){
+		
+		for( let admin of aAdminList ){
+		  aMemberList.push( admin );
+		}
+		
+		aAdminList = [];
+				
+		Send(`_*All admins have been removed*_`);
+		return 0;
+		
+	  }
+	  
 	  for( let admin of aAdminList ){
 	  
 	    //lower case the name and admin to prevent uppercase mistakes
 	    if( sName.toLowerCase() === admin.toLowerCase() ){
 		
 		  aAdminList = aAdminList.filter( function( name ){ name != admin } );
-		
+		  aMemberList.push( admin );
+		  
 		  Send(`_*${admin}* has been removed as an admin by *${sOwnerName}*_`);
-		
-		  break;
+		  return 0;
+		  
 	
 	    //if the name is not in the admin list
 	    } else if( admin === aAdminList[ aAdminList.length - 1 ] ){
 		
-		  Send(`_*${sName}* is not in the admin list, so it is either spelled incorrect or does not exist_`);
-		
+		  Send(`_*${sName}* is not in the admin list, so it is either spelled incorrect or they are not an admin_`);
+		  return 0;
+		  
 	    }
 	  }
     }
@@ -424,8 +539,8 @@ function CheckSender( ){
   
   if( !bIsOwner ){
     for( let j = 1; j < iLoadedCount; j++ ){
-	  if( document.querySelector( `#main > div > div > div > div > div:nth-last-of-type(${i}) > div > div > div > div > span[dir='auto']` ) !== null ){
-	    sName = document.querySelector( `#main > div > div > div > div > div:nth-last-of-type(${i}) > div > div > div > div > span[dir='auto']` ).innerHTML;
+	  if( document.querySelector( `#main > div > div > div > div > div:nth-last-of-type(${j}) > div > div > div > div > span[dir='auto']` ) !== null ){
+	    sName = document.querySelector( `#main > div > div > div > div > div:nth-last-of-type(${j}) > div > div > div > div > span[dir='auto']` ).innerHTML;
 	    break;
   	  }
     }
@@ -438,6 +553,25 @@ function CheckSender( ){
   
   return [bIsOwner,bIsAdmin,sName];
 
+}
+
+
+
+/////////////////////////   Get the sender's name   ////////////////////////
+
+function GetSendName( ){
+  
+  let sName = "";
+  
+  for( let i = 1; i < iLoadedCount; i++ ){
+	if( document.querySelector( `#main > div > div > div > div > div:nth-last-of-type(${i}) > div > div > div > div > span[dir='auto']` ) !== null ){
+	  sName = document.querySelector( `#main > div > div > div > div > div:nth-last-of-type(${i}) > div > div > div > div > span[dir='auto']` ).innerHTML;
+	  break;
+  	}
+  }
+  
+  return sName;
+  
 }
 
 
@@ -456,6 +590,10 @@ function GetMembers(){
   
   //remove the "You" member from the array
   aMemberList.pop();
+  
+  //remove everyone who is in the admin list
+  for( let admin of aAdminList )
+	aMemberList.filter( function( member ){ return member != admin } );
   
 }
 
@@ -562,7 +700,7 @@ let sChatName = "";
 
 let sBotName = "";
 
-let sOwnerName = "Bot activator";
+let sOwnerName = "The one who runs this bot";
 
 function Main( bSendSetupMessage ){
   
@@ -575,11 +713,11 @@ function Main( bSendSetupMessage ){
   GetMembers( );
   
   if( bSendSetupMessage )
-    Send( `_The bot *"${sBotName}"* is set up and bound to the chat: *"${sChatName}"*.\nUse !help to see the commands you can use.\nDownload me at https://github.com/Roel-04/WhatsAppBot/blob/master/WhatsAppBot%20latest.js by Roel_` );
+    Send( `_The bot *"${sBotName}"* is set up and bound to the chat: *"${sChatName}"*._\n_Use !help to see the commands you can use._\n_Download me at https://github.com/Roel-04/WhatsAppBot/blob/master/WhatsAppBot%20latest.js by Roel_` );
   
   else
-	console.log(`The bot "${sBotName}" is set up and bound to the chat: "${sChatName}".\nUse !help to see the commands you can use.\nDownload me at https://github.com/Roel-04/WhatsAppBot/blob/master/WhatsAppBot%20latest.js by Roel`);
+    console.log(`The bot "${sBotName}" is set up and bound to the chat: "${sChatName}".\nUse !help to see the commands you can use.\nDownload me at https://github.com/Roel-04/WhatsAppBot/blob/master/WhatsAppBot%20latest.js by Roel`);
   
 }
 
-Main( false );
+Main( true ); //change to false if you only want a message in the console
