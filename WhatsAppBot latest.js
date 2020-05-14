@@ -6,19 +6,19 @@ class FunctionObject {
   // normal commands 
   ShowHelpMenu	( NO_ARGUMENTS ){ 	ShowHelpMenu( ); 				}
   ShowShortcuts	( NO_ARGUMENTS ){ 	ShowShortcuts( ); 				}
-  SpamMessage	( sMsg_and_iIt ){	SpamMessage( sMsg_and_iIt );			}
-  WaveMessage	( sMessage ){		WaveMessage( sMessage );			}
-  CharMessage	( sMessage ){		CharMessage( sMessage );			}
+  SpamMessage	( sMsg_and_iIt ){	SpamMessage( sMsg_and_iIt );	}
+  WaveMessage	( sMessage ){		WaveMessage( sMessage );		}
+  CharMessage	( sMessage ){		CharMessage( sMessage );		}
 
   // admin+ commands
   StopSpamming  ( NO_AGRUMENTS ){	StopSpamming( );				} 
-  ChangeBotName	( sName ){		ChangeBotName( sName);				} 
+  ChangeBotName	( sName ){			ChangeBotName( sName);			} 
   ShowGroupList ( NO_ARGUMENTS ){	ShowGroupList( );				}  
 
   // owner commands
-  ChangePrefix	( sNewPrefix ){ 	ChangePrefix( sNewPrefix ); 			}
-  ChangeName	( sName ){		ChangeName( sName );				}  
-  Admin		( RA_and_sName ){	Admin( RA_and_sName );				}  //Finished, not tested in a groupchat yet
+  ChangePrefix	( sNewPrefix ){ 	ChangePrefix( sNewPrefix ); 	}
+  ChangeName	( sName ){			ChangeName( sName );			}  
+  Admin			( RA_and_sName ){	Admin( RA_and_sName );			}  //Finished, not tested in a groupchat yet
 }
 
 
@@ -83,7 +83,6 @@ function ShowHelpMenu( NO_ARGUMENTS ){
  
 function ChangePrefix( sNewPrefix ){
   
-  
   if( CheckSender()[0] ){
 	
     //if the new prefex is nothing, use the old prefix	
@@ -92,7 +91,9 @@ function ChangePrefix( sNewPrefix ){
   
     //no spaces and uppercase characters allowed cuz it I don't like capital chars and spaces will ruin the bot
     Send( `_The prefix has changed from "${ sPrefix }" to "${ sNewPrefix.split(' ').join('').toLowerCase() }"_` );
-  
+    
+	CheckSpamForPrefix( sNewPrefix.split(' ').join('').toLowerCase() );
+	
     sPrefix = ( sNewPrefix != '' )? sNewPrefix.split(' ').join('').toLowerCase() : sPrefix;
 	
   } else {
@@ -139,13 +140,9 @@ function SpamMessage( sMessage_and_iIterations ){
   if( iIterations > iIt_limit )
 	iIterations = iIt_limit;
   
-  for( let aA of aCallFuncs )
-	for( let sB of aA )
-	  if( new RegExp( sPrefix + sB , ).test( sMessage.toLowerCase( ) ) )
-		sMessage = sMessage.split( sPrefix + sB ).join( sB );
-		
+  sMessage = CheckSpamForCommands( sMessage );		
 
-  aMessageQueue.push( [sMessage, iIterations] );
+  aMessageQueue.push( [ sMessage, iIterations ] );
  
 }
 
@@ -160,6 +157,8 @@ function WaveMessage( sMessage ){
   
   if( sMessage.length > iChar_limit )
 	sMessage = sMessage.slice( 0, iChar_limit - 1 );  
+  
+  sMessage = CheckSpamForCommands( sMessage );
   
   aMessageQueue.push( [ sMessage, sMessage.length, 'waveL', 1 ] );
 
@@ -273,6 +272,9 @@ function ShowGroupList( ){
 /////////////////////////   Change the Owner's name   ///////////////////////
 
 function ChangeName( sName ){
+  
+  if( sName === "" )
+	sName = "The one who runs this bot";
   
   if( CheckSender()[0] ){
 	
@@ -576,6 +578,34 @@ function GetSendName( ){
 
 
 
+/////////////////////////   Check if there is a command in the spam messages   /////////////////////////////
+
+function CheckSpamForPrefix( sNewPrefix ){
+  
+  let aNewSpamQueue = [];
+  
+  for( let aSpam of aMessageQueue ){
+	let sMessage = aSpam[0];
+	let iIterat = aSpam[1];
+	let sSpecies = aSpam[2];
+	//if the message starts with the prefix and doesn't have a space after the prefix, remove the prefix
+    if( sMessage.slice( 0, sNewPrefix.length ) === sNewPrefix && sMessage[ sNewPrefix.length ] != " " ){
+		
+      sMessage = sMessage.slice( sNewPrefix.length );
+      
+	  //if it is a wave message, just restart that loop because I'm lazy
+	  iIterat = ( sPecies === 'waveL' )? sMessage.length : ( sPecies === 'waveR' )? sMessage.length - 1 : iIterat; 
+	  
+	}
+  
+  aMessageQueue = aNewSpamQueue;
+  
+}
+aMessageQueue.push( [ sMessage, sMessage.length, 'waveL', 1 ] );
+
+  aMessageQueue.push( [ sMessage, sMessage.length - 1, 'waveR', sMessage.length - 1 ] );
+
+
 /////////////////////////   Get all the group members    /////////////////////////
 
 let aMemberList = [];
@@ -653,6 +683,8 @@ setInterval(
 		
 	      if( aMessageQueue[0][1] > 0 ){
 	  	  
+		    
+		  
 		  //ways of sending for every case
 		  
 		    if( aMessageQueue[0][2] === undefined )
@@ -716,8 +748,8 @@ function Main( bSendSetupMessage ){
     Send( `_The bot *"${sBotName}"* is set up and bound to the chat: *"${sChatName}"*._\n_Use !help to see the commands you can use._\n_Download me at https://github.com/Roel-04/WhatsAppBot/blob/master/WhatsAppBot%20latest.js by Roel_` );
   
   else
-    console.log(`The bot "${sBotName}" is set up and bound to the chat: "${sChatName}".\nUse !help to see the commands you can use.\nDownload me at https://github.com/Roel-04/WhatsAppBot/blob/master/WhatsAppBot%20latest.js by Roel`);
+	console.log(`The bot "${sBotName}" is set up and bound to the chat: "${sChatName}".\nUse !help to see the commands you can use.\nDownload me at https://github.com/Roel-04/WhatsAppBot/blob/master/WhatsAppBot%20latest.js by Roel`);
   
 }
 
-Main( true ); //change to false if you only want a message in the console
+Main( false );
