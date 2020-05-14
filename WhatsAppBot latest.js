@@ -198,7 +198,7 @@ function StopSpamming( ){
     aMessageQueue = [];
   
     if( aStatus[0] )
-	  Send( `_*${sOwnerName()}* has cleared the spamlist successfully_` );
+	  Send( `_*${sOwnerName}* has cleared the spamlist successfully_` );
   
     else 
       Send( `_*${GetSendName()}* has cleared the spamlist successfully_` );
