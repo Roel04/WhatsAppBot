@@ -6,19 +6,19 @@ class FunctionObject {
   // normal commands 
   ShowHelpMenu	( NO_ARGUMENTS ){ 	ShowHelpMenu( ); 				}
   ShowShortcuts	( NO_ARGUMENTS ){ 	ShowShortcuts( ); 				}
-  SpamMessage	( sMsg_and_iIt ){	SpamMessage( sMsg_and_iIt );	}
-  WaveMessage	( sMessage ){		WaveMessage( sMessage );		}
-  CharMessage	( sMessage ){		CharMessage( sMessage );		}
+  SpamMessage	( sMsg_and_iIt ){	SpamMessage( sMsg_and_iIt );			}
+  WaveMessage	( sMessage ){		WaveMessage( sMessage );			}
+  CharMessage	( sMessage ){		CharMessage( sMessage );			}
 
   // admin+ commands
   StopSpamming  ( NO_AGRUMENTS ){	StopSpamming( );				} 
-  ChangeBotName	( sName ){			ChangeBotName( sName);			} 
+  ChangeBotName	( sName ){		ChangeBotName( sName);				} 
   ShowGroupList ( NO_ARGUMENTS ){	ShowGroupList( );				}  
 
   // owner commands
-  ChangePrefix	( sNewPrefix ){ 	ChangePrefix( sNewPrefix ); 	}
-  ChangeName	( sName ){			ChangeName( sName );			}  
-  Admin			( RA_and_sName ){	Admin( RA_and_sName );			}  //Finished, not tested in a groupchat yet
+  ChangePrefix	( sNewPrefix ){ 	ChangePrefix( sNewPrefix ); 			}
+  ChangeName	( sName ){		ChangeName( sName );				}  
+  Admin		( RA_and_sName ){	Admin( RA_and_sName );				}  //Finished, not tested in a groupchat yet
 }
 
 
