@@ -140,7 +140,7 @@ function SpamMessage( sMessage_and_iIterations ){
   if( iIterations > iIt_limit )
 	iIterations = iIt_limit;
   
-  sMessage = CheckSpamForCommands( sMessage );		
+  sMessage = RemovePrefixFromSpam( sMessage );
 
   aMessageQueue.push( [ sMessage, iIterations ] );
  
@@ -156,9 +156,9 @@ function WaveMessage( sMessage ){
 	sMessage = 'Wave message';
   
   if( sMessage.length > iChar_limit )
-	sMessage = sMessage.slice( 0, iChar_limit - 1 );  
-  
-  sMessage = CheckSpamForCommands( sMessage );
+	sMessage = sMessage.slice( 0, iChar_limit - 1 ); 
+
+  sMessage = RemovePrefixFromSpam( sMessage );
   
   aMessageQueue.push( [ sMessage, sMessage.length, 'waveL', 1 ] );
 
@@ -175,7 +175,7 @@ function CharMessage( sMessage ){
   if( sMessage === '' )
 	sMessage = 'Message.';
 
-  let sMessae = sMessage.split( ' ' ).join( '' );
+  sMessage = sMessage.split( ' ' ).join( '' );
 
   if( sMessage.length > iChar_limit )
 	sMessage = sMessage.slice( 0, iChar_limit - 1 );
@@ -597,13 +597,42 @@ function CheckSpamForPrefix( sNewPrefix ){
 	  iIterat = ( sPecies === 'waveL' )? sMessage.length : ( sPecies === 'waveR' )? sMessage.length - 1 : iIterat; 
 	  
 	}
+  }
   
   aMessageQueue = aNewSpamQueue;
   
 }
-aMessageQueue.push( [ sMessage, sMessage.length, 'waveL', 1 ] );
 
-  aMessageQueue.push( [ sMessage, sMessage.length - 1, 'waveR', sMessage.length - 1 ] );
+
+
+/////////////////////////   Remove prefix in spam messages   //////////////////////////
+
+function RemovePrefixFromSpam( sMessage ){
+	
+  let bIsCommand = false;
+  
+  //check if the prefix is matching
+  for( let i = 0; i < sPrefix.length; i ++ ){
+	  
+	if( sMessage[i] != sPrefix[i] ){
+		
+	  bIsCommand = false;
+      break;
+	  
+    } else if( i === sPrefix.length - 1 ){
+		
+	  bIsCommand = true;
+	  
+	}
+  }
+  
+  if( bIsCommand )
+	sMessage = sMessage.slice( sPrefix.length );
+
+  return sMessage;  
+  
+}
+
 
 
 /////////////////////////   Get all the group members    /////////////////////////
