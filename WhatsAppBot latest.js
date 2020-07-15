@@ -19,6 +19,7 @@ class FunctionObject {
   ChangePrefix	( sNewPrefix ){ 	ChangePrefix( sNewPrefix ); 			}
   ChangeName	( sName ){		ChangeName( sName );				}  
   Admin		( RA_and_sName ){	Admin( RA_and_sName );				}  //Finished, not tested in a groupchat yet
+  InstaReply	( sMsg ){		InstaReply( sMsg );				}
 }
 
 
@@ -27,6 +28,9 @@ class FunctionObject {
 let sPrefix = "!";
 
 let aMessageQueue = [];
+
+let sInstareplymsg = "";
+let bDoRepy = false;
 
 const iIt_limit = 1000;
 
@@ -44,7 +48,8 @@ const aFunctions =
   [ "[p]grouplist" , "" , "Shows everyone's roles" , [ "[p]glist" , "[p]gl" ] ],
   [ "[p]prefix" , "[new prefix]" , "Change the prefix", [ "[p]pre" , "[p]p" ] ],
   [ "[p]name" , "[new name]" , "Change the owner name" , [ "" ] ],
-  [ "[p]admin" , "[add/remove] [name]" , "Add an admin" , [ "" ] ]
+  [ "[p]admin" , "[add/remove] [name]" , "Add an admin" , [ "" ] ],
+  [ "[p]instareply" , "[message]" , "instantly reply to all messages" , [ "[p]ir" ] ]
 ];
 
 const aCallFuncs = 
@@ -60,6 +65,7 @@ const aCallFuncs =
   [ "prefix" , "pre" , "p" , "ChangePrefix" ],
   [ "name" , "ChangeName" ],
   [ "admin" , "Admin" ],
+  [ "instareply" , "ir" , "InstaReply" ]
 ];
 
 
@@ -424,8 +430,33 @@ function Admin( RemAdd_and_sName ){
     }
   } else {
 	
-    Send("_Only *${sOwnerName}* can add admins_");
+    Send(`_Only *${sOwnerName}* can add admins_`);
 	
+  }
+}
+
+/////////////////////////   insta reply function    ////////////////////////
+
+function InstaReply( sMsg ){
+	
+  if( CheckSender()[0] ){
+	  
+	if( sMsg === "disable" || sMsg === " " ){
+		
+	  sInstareplymsg = "";
+	  bDoReply = false;
+	  Send(`_Disabled instant reply_`);
+	  
+	} else if( sMsg != "" ) {
+		
+	  sInstareplymsg = sMsg;
+	  bDoReply = true;
+	  Send(`_Now replying to messages with *${sMsg}*_`);
+	  
+	}
+  } else {
+  
+  
   }
 }
 
@@ -436,6 +467,9 @@ function Admin( RemAdd_and_sName ){
 function ProcessMessage( sMessage ){
   
   let bIsCommand = true;
+  
+  if( bDoReply && !CheckSender()[0] )
+	Send( sInstareplymsg );
   
   //check if the prefix is correct / if it is a command
   for( let i = 0; i < sPrefix.length; i ++ )
@@ -764,6 +798,8 @@ let sBotName = "";
 let sOwnerName = "The one who runs this bot";
 
 function Main( bSendSetupMessage ){
+	
+  bDoReply = false;
   
   sOldText = document.querySelector( "#main > div > div > div" ).innerHTML;
 	
