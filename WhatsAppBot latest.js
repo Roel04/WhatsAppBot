@@ -509,7 +509,7 @@ function CopyCat( sMessage ){
   if( IsCommand( sMessage ) )
     bIsCommand = true
 
-  Send(`${(bIsCommand)? "*Cmd: *" : ""}${sMessage}`);
+  Send(`${(bIsCommand)? "*Cmd:* " : ""}${sMessage}`);
 
 }
 
