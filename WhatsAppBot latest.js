@@ -20,10 +20,24 @@ class FunctionObject {
   ChangeName	( sName ){		ChangeName( sName );				}  
   Admin		( RA_and_sName ){	Admin( RA_and_sName );				}  //Finished, not tested in a groupchat yet
   InstaReply	( sMsg ){		InstaReply( sMsg );				}
+  CopyCat	( NO_ARGUMENTS ){	ToggleCopyCat( );				}
 }
 
 
 /////////////////////////   Help function   /////////////////////////
+
+let aMemberList = [];
+let aAdminList = [];
+let sOwner = "message-out"; //the person who set up the bot is also main admin or "owner"
+
+let sChatName = "";
+let sBotName = "";
+let sOwnerName = "The one who runs this bot";
+
+// sOldText contains the innerHTML of the loaded messages as a string
+let sOldText = "";
+// iLoadedCount is the amount of loaded messages
+let iLoadedCount = 0;
 
 let sPrefix = "!";
 
@@ -31,6 +45,8 @@ let aMessageQueue = [];
 
 let sInstareplymsg = "";
 let bDoRepy = false;
+
+let bCopyCat = false;
 
 const iIt_limit = 1000;
 
@@ -49,7 +65,8 @@ const aFunctions =
   [ "[p]prefix" , "[new prefix]" , "Change the prefix", [ "[p]pre" , "[p]p" ] ],
   [ "[p]name" , "[new name]" , "Change the owner name" , [ "" ] ],
   [ "[p]admin" , "[add/remove] [name]" , "Add an admin" , [ "" ] ],
-  [ "[p]instareply" , "[message]" , "instantly reply to all messages" , [ "[p]ir" ] ]
+  [ "[p]instareply" , "[message]" , "instantly reply to all messages" , [ "[p]ir" ] ],
+  [ "[p]copycat" , "" , "copies all messages and sends them" , [ "[p]cc" ] ]
 ];
 
 const aCallFuncs = 
@@ -65,7 +82,8 @@ const aCallFuncs =
   [ "prefix" , "pre" , "p" , "ChangePrefix" ],
   [ "name" , "ChangeName" ],
   [ "admin" , "Admin" ],
-  [ "instareply" , "ir" , "InstaReply" ]
+  [ "instareply" , "ir" , "InstaReply" ],
+  [ "copycat" , "cc" , "CopyCat" ]
 ];
 
 
@@ -435,6 +453,8 @@ function Admin( RemAdd_and_sName ){
   }
 }
 
+
+
 /////////////////////////   insta reply function    ////////////////////////
 
 function InstaReply( sMsg ){
@@ -445,10 +465,13 @@ function InstaReply( sMsg ){
 		
 	  sInstareplymsg = "";
 	  bDoReply = false;
-	  Send(`_Disabled instant reply_`);
+	  Send(`_Disabled insta reply_`);
 	  
 	} else if( sMsg != "" ) {
-		
+	  
+	  if( IsCommand( sMsg ) )
+		sMsg = sMsg.slice( sPrefix.length );
+	  
 	  sInstareplymsg = sMsg;
 	  bDoReply = true;
 	  Send(`_Now replying to messages with *${sMsg}*_`);
@@ -462,19 +485,63 @@ function InstaReply( sMsg ){
 
 
 
+/////////////////////////   copy cat function    ////////////////////////
+
+function ToggleCopyCat( ){
+	
+  if( CheckSender()[0] ){
+	  
+    bCopyCat = !bCopyCat;
+  
+    if( bCopyCat ){
+	  Send( `CopyCat is now ${(bCopyCat)? "*enabled.*" : "*disabled.*" }` );
+	  
+	}
+  } else {
+	  
+  }
+}
+
+function CopyCat( sMessage ){
+	
+  let bIsCommand = false;
+	
+  if( IsCommand( sMessage ) )
+    bIsCommand = true
+
+  Send(`${(bIsCommand)? "*Cmd: *" : ""}${sMessage}`);
+
+}
+
+
+
+/////////////////////////   Check if a message is a command   /////////////////////
+
+function IsCommand( sMessage ){
+  
+  let bIsCommand = true;
+  
+  for( let i = 0; i < sPrefix.length; i++ )
+	if( sMessage[i] != sPrefix[i] )
+	  bIsCommand = false;
+  
+  return bIsCommand;
+
+}
+
+
+
 /////////////////////////   Process the new message   /////////////////////////
 
 function ProcessMessage( sMessage ){
   
-  let bIsCommand = true;
+  let bIsCommand = IsCommand( sMessage );
   
   if( bDoReply && !CheckSender()[0] )
 	Send( sInstareplymsg );
   
-  //check if the prefix is correct / if it is a command
-  for( let i = 0; i < sPrefix.length; i ++ )
-	if( sMessage[i] != sPrefix[i] ) 
-	  bIsCommand = false;
+  if( bCopyCat && !CheckSender()[0] )
+	CopyCat( sMessage );
   
   if( bIsCommand && sMessage.length > sPrefix.length ){
 	
@@ -554,9 +621,6 @@ function GetLatestMessageTime( ){
 
 
 /////////////////////////   Checks who send the messages and if they are "bot admin"    ///////////////////////
-
-let aAdminList = [];
-let sOwner = "message-out"; //the person who set up the bot is also main admin or "owner"
 
 function CheckSender( ){
   
@@ -671,8 +735,6 @@ function RemovePrefixFromSpam( sMessage ){
 
 /////////////////////////   Get all the group members    /////////////////////////
 
-let aMemberList = [];
-
 function GetMembers(){
   
   //this gets a string of all the members separated by ", "
@@ -693,12 +755,6 @@ function GetMembers(){
 
 
 /////////////////////////   Check if a new message is send   /////////////////////////
-
-// sOldText contains the innerHTML of the loaded messages as a string
-let sOldText = "";
-
-// iLoadedCount is the amount of loaded messages
-let iLoadedCount = 0;
 
 // CheckForNewMessage checks if the old loaded messages are the same as the new ones
 // and if not, it will process the new message
@@ -790,12 +846,6 @@ setInterval(
 
 
 /////////////////////////   Main function   /////////////////////////
-
-let sChatName = "";
-
-let sBotName = "";
-
-let sOwnerName = "The one who runs this bot";
 
 function Main( bSendSetupMessage ){
 	
