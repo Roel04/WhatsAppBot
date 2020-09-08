@@ -493,11 +493,11 @@ function ToggleCopyCat( ){
 	  
     bCopyCat = !bCopyCat;
   
-    if( bCopyCat ){
-	  Send( `CopyCat is now ${(bCopyCat)? "*enabled.*" : "*disabled.*" }` );
+    Send( `CopyCat is now ${(bCopyCat)? "*enabled.*" : "*disabled.*" }` );
 	  
-	}
   } else {
+	 
+    Send(`Only ${sOwnerName} can access this command`); 
 	  
   }
 }
