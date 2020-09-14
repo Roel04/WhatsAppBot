@@ -18,7 +18,7 @@ class FunctionObject {
   // owner commands
   ChangePrefix	( sNewPrefix ){ 	ChangePrefix( sNewPrefix ); 			}
   ChangeName	( sName ){		ChangeName( sName );				}  
-  Admin		( RA_and_sName ){	Admin( RA_and_sName );				}  //Finished, not tested in a groupchat yet
+  Admin		( RA_and_sName ){	Admin( RA_and_sName );				}  
   InstaReply	( sMsg ){		InstaReply( sMsg );				}
   CopyCat	( NO_ARGUMENTS ){	ToggleCopyCat( );				}
 }
@@ -479,6 +479,7 @@ function InstaReply( sMsg ){
 	}
   } else {
   
+    Send(`_You can't run this command_`);
   
   }
 }
@@ -493,10 +494,8 @@ function ToggleCopyCat( ){
 	  
     bCopyCat = !bCopyCat;
   
-    if( bCopyCat ){
-	  Send( `CopyCat is now ${(bCopyCat)? "*enabled.*" : "*disabled.*" }` );
+    Send( `CopyCat is now ${(bCopyCat)? "*enabled.*" : "*disabled.*" }` );
 	  
-	}
   } else {
 	  
   }
