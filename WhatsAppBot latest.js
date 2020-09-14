@@ -468,20 +468,15 @@ function InstaReply( sMsg ){
 	  Send(`_Disabled insta reply_`);
 	  
 	} else if( sMsg != "" ) {
-	  
+		
 	  if( IsCommand( sMsg ) )
 		sMsg = sMsg.slice( sPrefix.length );
 	  
 	  sInstareplymsg = sMsg;
 	  bDoReply = true;
 	  
-	  let smoltrickery = "";
-	  for(let i = 0; i < 6; i++){
-	    smoltrickery += sMsg[i];
-	  }
-	  if(smoltrickery != sPrefix + "false"){
-	    Send(`_Now replying to messages with *${sMsg}*_`);
-	  }
+	  Send(`_Now replying to messages with *${sMsg}*_`);
+	  
 	}
   } else {
   
