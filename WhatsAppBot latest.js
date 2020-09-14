@@ -474,8 +474,14 @@ function InstaReply( sMsg ){
 	  
 	  sInstareplymsg = sMsg;
 	  bDoReply = true;
-	  Send(`_Now replying to messages with *${sMsg}*_`);
 	  
+	  let smoltrickery = "";
+	  for(let i = 0; i < 6; i++){
+	    smoltrickery += sMsg[i];
+	  }
+	  if(smoltrickery != sPrefix + "false"){
+	    Send(`_Now replying to messages with *${sMsg}*_`);
+	  }
 	}
   } else {
   
